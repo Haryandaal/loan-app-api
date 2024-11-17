@@ -31,17 +31,6 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 
 ---
 
-## 🛠️ **Teknologi yang Digunakan**
-- **Java 17**  
-- **Spring Boot**  
-- **PostgreSQL**  
-- **Hibernate (JPA)**  
-- **Lombok**  
-- **Jackson Datatype JSR310**  
-- **Maven**  
-
----
-
 ## ⚙️ **Alur Aplikasi**
 
 ### 1. **Pendaftaran Pelanggan**
@@ -68,7 +57,7 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 - **Proses**:
   - Validasi apakah pelanggan tidak memiliki pinjaman aktif.
   - Jika valid, data pinjaman disimpan dengan status `PENDING`.  
-- **Endpoint**: `POST /api/v1/loans/apply`  
+- **Endpoint**: `POST /api/loans/apply`  
 - **Respons**:
   ```json
   {
@@ -149,7 +138,8 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
   ```java
   customer.setNextEligibleDate(LocalDateTime.now().plusDays(30));
   ```
-
+  
+---
 
 
 ## 🌟 **Fitur Mendatang**
@@ -172,3 +162,60 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
    ```bash
    ./mvnw spring-boot:run
    ```
+
+
+### API Workflow
+
+1. **Customer Registration**
+   - **Endpoint:** `POST /api/customers/register`
+   - **Input:** Customer details (name, email, income, employment status, etc.)
+   - **Output:** Confirmation of successful registration or an error message.
+
+2. **Apply for Loan**
+   - **Endpoint:** `POST /api/loans/apply`
+   - **Input:** Customer ID, loan details (amount, duration, interest rate).
+   - **Workflow:**
+     - Validate if the customer has active loans.
+     - Create a new loan record with `PENDING` status.
+     - Respond with loan details in a DTO.
+
+3. **Evaluate Loan Application (Admin Action)**
+   - **Endpoint:** `PUT /api/loans/evaluate/{loanId}`
+   - **Input:** Admin ID, loan ID, evaluation decision (approved/rejected), optional rejection reason.
+   - **Workflow:**
+     - Verify admin privileges.
+     - Validate customer's creditworthiness (credit score, income, repayment history, etc.).
+     - Update loan status to `APPROVED` or `REJECTED`.
+     - If `REJECTED`, include a rejection reason.
+   - **Output:** Updated loan details in a DTO.
+
+4. **Check Loan Status**
+   - **Endpoint:** `GET /api/loans/{loanId}`
+   - **Input:** Loan ID
+   - **Output:** Loan details including current status (PENDING, APPROVED, REJECTED).
+
+5. **Update Credit Score**
+   - **Endpoint:** `PUT /api/customers/{customerId}/credit-score`
+   - **Input:** Customer ID
+   - **Workflow:**
+     - Calculate the new credit score based on payment history and other parameters.
+     - Update the customer record with the new score.
+   - **Output:** Confirmation of credit score update or an error message.
+
+6. **Loan Repayment**
+   - **Endpoint:** `POST /api/loans/repay`
+   - **Input:** Loan ID, payment amount.
+   - **Workflow:**
+     - Validate payment amount.
+     - Reduce outstanding balance for the loan.
+     - If balance becomes zero, mark loan as `PAID`.
+   - **Output:** Updated loan details including the remaining balance.
+
+7. **Retrieve Loan History (Customer)**
+   - **Endpoint:** `GET /api/customers/{customerId}/loans`
+   - **Input:** Customer ID
+   - **Output:** List of all loans associated with the customer along with their statuses.
+
+8. **Retrieve Defaulted Loans (Admin)**
+   - **Endpoint:** `GET /api/loans/defaulted`
+   - **Output:** List of loans with `DEFAULTED` status including customer information.
