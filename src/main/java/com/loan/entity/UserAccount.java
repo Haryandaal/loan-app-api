@@ -28,9 +28,9 @@ public class UserAccount implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private UserRole role;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     @OneToOne(mappedBy = "userAccount")
     private Customer customer;
@@ -39,8 +39,7 @@ public class UserAccount implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<UserRole> myRoles = List.of(role);
-        return myRoles.stream().map(userRole -> new SimpleGrantedAuthority(userRole.name())).toList();
+        return List.of(new SimpleGrantedAuthority(role.getName()));
     }
 
     @Override

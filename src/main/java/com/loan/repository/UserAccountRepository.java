@@ -24,6 +24,6 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, String
 
         @Modifying
         @Transactional
-        @Query(value = "INSERT INTO user_account (id, username, password, role) VALUES (?, ?, ?, ?)", nativeQuery = true)
+        @Query(value = "INSERT INTO user_account (id, username, password, role_id) VALUES (?, ?, ?, ?)", nativeQuery = true)
         void save(String id, String username, String password,  String role);
 }

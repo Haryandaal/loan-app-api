@@ -46,7 +46,7 @@ public class JwtServiceImpl implements JwtService {
                     .withIssuedAt(Instant.now())
                     .withExpiresAt(Instant.now().plus(EXPIRATION_IN_MINUTES, ChronoUnit.MINUTES))
                     .withSubject(userAccount.getId())
-                    .withClaim("role", userAccount.getRole().getDescription())
+                    .withClaim("role", userAccount.getRole().getName())
                     .sign(algorithm);
         } catch (JWTCreationException e) {
             log.error("Error creating JWT token - {}", e.getMessage());

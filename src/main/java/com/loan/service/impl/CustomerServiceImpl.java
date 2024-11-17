@@ -3,9 +3,10 @@ package com.loan.service.impl;
 import com.loan.dto.CustomerRequest;
 import com.loan.dto.CustomerResponse;
 import com.loan.entity.Customer;
+import com.loan.entity.Role;
 import com.loan.entity.UserAccount;
-import com.loan.entity.UserRole;
 import com.loan.repository.CustomerRepository;
+import com.loan.repository.RoleRepository;
 import com.loan.service.CustomerService;
 import com.loan.service.UserService;
 import com.loan.util.ValidationUtil;
@@ -18,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final UserService userService;
     private final ValidationUtil validationUtil;
+    private final RoleRepository roleRepository;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -37,11 +37,15 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Create customer request: {}", request);
         validationUtil.validate(request);
 
+        Role customerRole = roleRepository.findByName("Customer")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role 'Customer' not found"));
+
+
         UserAccount userAccount = UserAccount.builder()
                 .id(UUID.randomUUID().toString())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .role(UserRole.ROLE_CUSTOMER)
+                .role(customerRole)
                 .build();
         userService.create(userAccount);
         Customer customer = Customer.builder()
@@ -97,7 +101,12 @@ public class CustomerServiceImpl implements CustomerService {
 
         UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (userAccount.getRole().equals(UserRole.ROLE_CUSTOMER) && !userAccount.getId().equals(customer.getUserAccount().getId()))
+        Role userRole = userAccount.getRole();
+        if (userRole == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Role not found");
+        }
+
+        if ("Customer".equals(userRole.getName()) && !userAccount.getId().equals(customer.getUserAccount().getId()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed to update this customer");
 
         customer.setName(request.getName());

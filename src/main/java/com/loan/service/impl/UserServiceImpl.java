@@ -3,8 +3,9 @@ package com.loan.service.impl;
 import com.loan.dto.UserRequest;
 import com.loan.dto.UserResponse;
 import com.loan.dto.UserUpdatePasswordRequest;
+import com.loan.entity.Role;
 import com.loan.entity.UserAccount;
-import com.loan.entity.UserRole;
+import com.loan.repository.RoleRepository;
 import com.loan.repository.UserAccountRepository;
 import com.loan.service.UserService;
 import com.loan.util.ValidationUtil;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidationUtil validationUtil;
+    private final RoleRepository roleRepository;
 
     @Value("${USERNAME_ADMIN:admin}")
     private String USERNAME_ADMIN;
@@ -42,17 +44,27 @@ public class UserServiceImpl implements UserService {
     public void initUser() {
         boolean existsByUsername = userAccountRepository.existsByUsername(USERNAME_ADMIN);
         if (existsByUsername) return;
+
+        Role userRole = roleRepository.findByName("Admin")
+                .orElseGet(() -> {
+                    // Jika role tidak ditemukan, buat dan simpan role Admin baru
+                    Role newRole = Role.builder()
+                            .name("Admin")
+                            .build();
+                    return roleRepository.save(newRole);
+                });
+
         UserAccount userAccount = UserAccount.builder()
                 .id(UUID.randomUUID().toString())
                 .username(USERNAME_ADMIN)
                 .password(passwordEncoder.encode(PASSWORD_ADMIN))
-                .role(UserRole.ROLE_ADMIN)
+                .role(userRole)
                 .build();
         userAccountRepository.save(
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getDescription()
+                userAccount.getRole().getId()
         );
     }
 
@@ -64,8 +76,8 @@ public class UserServiceImpl implements UserService {
         if (userAccountRepository.findByUsername(userRequest.getUsername()).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
 
-        UserRole userRole = UserRole.findByName(userRequest.getRole());
-        if (userRole == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role");
+        Role userRole = roleRepository.findByName(userRequest.getRole())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role"));
 
         UserAccount userAccount = UserAccount.builder()
                 .id(UUID.randomUUID().toString())
@@ -77,7 +89,7 @@ public class UserServiceImpl implements UserService {
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getDescription()
+                userAccount.getRole().getId()
         );
         return toUserResponse(userAccount);
     }
@@ -90,7 +102,7 @@ public class UserServiceImpl implements UserService {
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getDescription()
+                userAccount.getRole().getId()
         );
         return userAccount;
     }
@@ -125,7 +137,7 @@ public class UserServiceImpl implements UserService {
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getDescription()
+                userAccount.getRole().getId()
         );
     }
 
@@ -140,7 +152,7 @@ public class UserServiceImpl implements UserService {
         return UserResponse.builder()
                 .id(userAccount.getId())
                 .username(userAccount.getUsername())
-                .role(userAccount.getRole().getDescription())
+                .role(userAccount.getRole().getName())
                 .build();
     }
 }
