@@ -3,6 +3,7 @@
 
 ## 📖 **Deskripsi**
 Sistem manajemen pinjaman ini dirancang untuk membantu mengelola proses pengajuan, evaluasi, persetujuan, dan penolakan pinjaman. Aplikasi ini mencakup fitur pengelolaan pelanggan, analisis risiko kredit, dan pembatasan pengajuan ulang.
+Aplikasi ini menggunakan Security (Authentication) dengan mengimplementasi JWT (Json Web Token) untuk melakukan generate access token
 
 ---
 
