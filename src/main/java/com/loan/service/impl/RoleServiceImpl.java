@@ -2,7 +2,7 @@ package com.loan.service.impl;
 
 import com.loan.dto.RoleRequest;
 import com.loan.dto.RoleResponse;
-import com.loan.entity.Role;
+import com.loan.entity.UserRole;
 import com.loan.repository.RoleRepository;
 import com.loan.service.RoleService;
 import com.loan.util.ValidationUtil;
@@ -30,15 +30,15 @@ public class RoleServiceImpl implements RoleService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role already exists");
         }
 
-        Role role = Role.builder()
+        UserRole userRole = UserRole.builder()
                 .name(request.getName())
                 .build();
 
-        Role savedRole = roleRepository.save(role);
+        UserRole savedUserRole = roleRepository.save(userRole);
 
         return RoleResponse.builder()
-                .id(savedRole.getId())
-                .name(savedRole.getName())
+                .id(savedUserRole.getId())
+                .name(savedUserRole.getName())
                 .build();
     }
 
@@ -55,7 +55,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional(readOnly = true)
     @Override
-    public Role getById(String id) {
+    public UserRole getById(String id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
     }
@@ -63,11 +63,11 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(readOnly = true)
     @Override
     public RoleResponse getOne(String id) {
-        Role role = roleRepository.findById(id)
+        UserRole userRole = roleRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
         return RoleResponse.builder()
-                .id(role.getId())
-                .name(role.getName())
+                .id(userRole.getId())
+                .name(userRole.getName())
                 .build();
 
     }

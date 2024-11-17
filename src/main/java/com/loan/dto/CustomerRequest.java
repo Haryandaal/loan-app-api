@@ -23,6 +23,12 @@ public class CustomerRequest {
 
     private String address;
 
+    private Double creditScore;
+
+    private String employmentStatus;
+
+    private Double income;
+
     @NotBlank(message = "phone is required")
     @Positive
     private String phone;

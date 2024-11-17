@@ -30,7 +30,7 @@ public class UserAccount implements UserDetails {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    private UserRole userRole;
 
     @OneToOne(mappedBy = "userAccount")
     private Customer customer;
@@ -39,7 +39,7 @@ public class UserAccount implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
+        return List.of(new SimpleGrantedAuthority(userRole.getName()));
     }
 
     @Override

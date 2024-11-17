@@ -3,7 +3,6 @@ package com.loan.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,7 +12,7 @@ import java.util.Set;
 @Setter
 @Builder
 @Table(name = "roles")
-public class Role {
+public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,6 +21,6 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "userRole")
     private Set<UserAccount> users;
 }

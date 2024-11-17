@@ -3,7 +3,7 @@ package com.loan.service.impl;
 import com.loan.dto.CustomerRequest;
 import com.loan.dto.CustomerResponse;
 import com.loan.entity.Customer;
-import com.loan.entity.Role;
+import com.loan.entity.UserRole;
 import com.loan.entity.UserAccount;
 import com.loan.repository.CustomerRepository;
 import com.loan.repository.RoleRepository;
@@ -37,7 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Create customer request: {}", request);
         validationUtil.validate(request);
 
-        Role customerRole = roleRepository.findByName("Customer")
+        UserRole customerUserRole = roleRepository.findByName("Customer")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role 'Customer' not found"));
 
 
@@ -45,12 +45,15 @@ public class CustomerServiceImpl implements CustomerService {
                 .id(UUID.randomUUID().toString())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .role(customerRole)
+                .userRole(customerUserRole)
                 .build();
         userService.create(userAccount);
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID().toString())
                 .name(request.getName())
+                .income(request.getIncome())
+                .creditScore(request.getCreditScore())
+                .employmentStatus(request.getEmploymentStatus())
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .address(request.getAddress())
@@ -59,9 +62,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(
                 customer.getId(),
                 customer.getName(),
-                customer.getEmail(),
-                customer.getPhone(),
                 customer.getAddress(),
+                customer.getPhone(),
+                customer.getIncome(),
+                customer.getCreditScore(),
+                customer.getEmploymentStatus(),
+                customer.getEmail(),
                 customer.getUserAccount().getId()
         );
 
@@ -101,7 +107,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         UserAccount userAccount = (UserAccount) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Role userRole = userAccount.getRole();
+        UserRole userRole = userAccount.getUserRole();
         if (userRole == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Role not found");
         }
@@ -116,9 +122,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(
                 customer.getId(),
                 customer.getName(),
-                customer.getEmail(),
-                customer.getPhone(),
                 customer.getAddress(),
+                customer.getPhone(),
+                customer.getIncome(),
+                customer.getCreditScore(),
+                customer.getEmploymentStatus(),
+                customer.getEmail(),
                 customer.getUserAccount().getId()
         );
 
@@ -137,6 +146,9 @@ public class CustomerServiceImpl implements CustomerService {
                 .id(customer.getId())
                 .name(customer.getName())
                 .address(customer.getAddress())
+                .income(customer.getIncome())
+                .creditScore(customer.getCreditScore())
+                .employmentStatus(customer.getEmploymentStatus())
                 .email(customer.getEmail())
                 .phone(customer.getPhone())
                 .userId(customer.getUserAccount().getId())

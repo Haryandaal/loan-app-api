@@ -19,7 +19,7 @@ public class Loan {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     private Long amount;
@@ -28,7 +28,7 @@ public class Loan {
     private Integer duration;
 
     @Column(name = "interest_rate")
-    private double interestRate;
+    private Double interestRate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status")
@@ -36,6 +36,9 @@ public class Loan {
 
     @Column(name = "application_date")
     private LocalDateTime applicationDate;
+
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
 
     @PrePersist
     private void prePersist() {

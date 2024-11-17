@@ -3,7 +3,7 @@ package com.loan.service.impl;
 import com.loan.dto.UserRequest;
 import com.loan.dto.UserResponse;
 import com.loan.dto.UserUpdatePasswordRequest;
-import com.loan.entity.Role;
+import com.loan.entity.UserRole;
 import com.loan.entity.UserAccount;
 import com.loan.repository.RoleRepository;
 import com.loan.repository.UserAccountRepository;
@@ -45,26 +45,26 @@ public class UserServiceImpl implements UserService {
         boolean existsByUsername = userAccountRepository.existsByUsername(USERNAME_ADMIN);
         if (existsByUsername) return;
 
-        Role userRole = roleRepository.findByName("Admin")
+        UserRole userRole = roleRepository.findByName("Admin")
                 .orElseGet(() -> {
                     // Jika role tidak ditemukan, buat dan simpan role Admin baru
-                    Role newRole = Role.builder()
+                    UserRole newUserRole = UserRole.builder()
                             .name("Admin")
                             .build();
-                    return roleRepository.save(newRole);
+                    return roleRepository.save(newUserRole);
                 });
 
         UserAccount userAccount = UserAccount.builder()
                 .id(UUID.randomUUID().toString())
                 .username(USERNAME_ADMIN)
                 .password(passwordEncoder.encode(PASSWORD_ADMIN))
-                .role(userRole)
+                .userRole(userRole)
                 .build();
         userAccountRepository.save(
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getId()
+                userAccount.getUserRole().getId()
         );
     }
 
@@ -76,20 +76,20 @@ public class UserServiceImpl implements UserService {
         if (userAccountRepository.findByUsername(userRequest.getUsername()).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
 
-        Role userRole = roleRepository.findByName(userRequest.getRole())
+        UserRole userRole = roleRepository.findByName(userRequest.getRole())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role"));
 
         UserAccount userAccount = UserAccount.builder()
                 .id(UUID.randomUUID().toString())
                 .username(userRequest.getUsername())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
-                .role(userRole)
+                .userRole(userRole)
                 .build();
         userAccountRepository.save(
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getId()
+                userAccount.getUserRole().getId()
         );
         return toUserResponse(userAccount);
     }
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getId()
+                userAccount.getUserRole().getId()
         );
         return userAccount;
     }
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
                 userAccount.getId(),
                 userAccount.getUsername(),
                 userAccount.getPassword(),
-                userAccount.getRole().getId()
+                userAccount.getUserRole().getId()
         );
     }
 
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
         return UserResponse.builder()
                 .id(userAccount.getId())
                 .username(userAccount.getUsername())
-                .role(userAccount.getRole().getName())
+                .role(userAccount.getUserRole().getName())
                 .build();
     }
 }

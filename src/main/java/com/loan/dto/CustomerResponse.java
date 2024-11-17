@@ -15,6 +15,12 @@ public class CustomerResponse {
 
     private String address;
 
+    private Double income;
+
+    private Double creditScore;
+
+    private String employmentStatus;
+
     private String phone;
 
     private String email;
