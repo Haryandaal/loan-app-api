@@ -20,9 +20,6 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
      - Riwayat pelunasan pinjaman.
      - Status pekerjaan pelanggan.
 
-4. **Notifikasi Keputusan**  
-   - Pelanggan diberitahu melalui notifikasi tentang status pengajuan pinjaman.
-
 5. **Audit dan Riwayat Evaluasi**  
    - Setiap keputusan admin tercatat dalam riwayat evaluasi untuk keperluan audit.
 
@@ -38,7 +35,7 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 - **Proses**:
   - Data pelanggan disimpan di database.
   - Skor kredit awal dihitung (default: 700).  
-- **Endpoint**: `POST /api/v1/customers`  
+- **Endpoint**: `POST /api/customers`  
 - **Respons**:
   ```json
   {
@@ -96,23 +93,20 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 - **Respons** (jika ditolak):
   ```json
   {
-    "loanId": "loan_id",
-    "approvalStatus": "REJECTED",
-    "rejectionReason": "Insufficient income",
-    "applicationDate": "2024-11-17T13:20:46",
-    "customerId": "customer_id"
+        "id": "random UUID",
+        "customerId": "7d54ffa2-37b7-46a9-a0fb-3b8d898dc6e8",
+        "amount": 200000,
+        "duration": 2,
+        "interestRate": 5.5,
+        "approvalStatus": "REJECTED",
+        "rejectionReason": "Rejection Reason",
+        "applicationDate": "2024-11-17 20:10:27"
   }
   ```
 
 ---
 
-### 4. **Notifikasi Keputusan**
-- **Proses**:
-  - Pelanggan diberitahu melalui email atau SMS tentang status pengajuan.
-
----
-
-### 5. **Riwayat Evaluasi**
+### 4. **Riwayat Evaluasi**
 - **Proses**:
   - Keputusan admin dicatat untuk keperluan audit dan analisis.  
 - **Struktur Data**:
@@ -128,16 +122,6 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
     "monthlyInstallment": 50000
   }
   ```
-
----
-
-### 6. **Pembatasan Pengajuan Ulang**
-- **Proses**:
-  - Jika pinjaman ditolak, pelanggan hanya dapat mengajukan ulang setelah 30 hari.  
-- **Database Update**:
-  ```java
-  customer.setNextEligibleDate(LocalDateTime.now().plusDays(30));
-  ```
   
 ---
 
@@ -146,6 +130,8 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 - Laporan bulanan otomatis.
 - Integrasi dengan layanan skor kredit pihak ketiga.
 - Sistem pemberitahuan real-time menggunakan WebSocket.
+- Feature jika pinjaman ditolak, pelanggan hanya dapat mengajukan ulang setelah 30 hari.  
+- (Notifikasi) Pelanggan diberitahu melalui email atau SMS tentang status pengajuan.
 
 ---
 
@@ -163,59 +149,3 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
    ./mvnw spring-boot:run
    ```
 
-
-### API Workflow
-
-1. **Customer Registration**
-   - **Endpoint:** `POST /api/customers/register`
-   - **Input:** Customer details (name, email, income, employment status, etc.)
-   - **Output:** Confirmation of successful registration or an error message.
-
-2. **Apply for Loan**
-   - **Endpoint:** `POST /api/loans/apply`
-   - **Input:** Customer ID, loan details (amount, duration, interest rate).
-   - **Workflow:**
-     - Validate if the customer has active loans.
-     - Create a new loan record with `PENDING` status.
-     - Respond with loan details in a DTO.
-
-3. **Evaluate Loan Application (Admin Action)**
-   - **Endpoint:** `PUT /api/loans/evaluate/{loanId}`
-   - **Input:** Admin ID, loan ID, evaluation decision (approved/rejected), optional rejection reason.
-   - **Workflow:**
-     - Verify admin privileges.
-     - Validate customer's creditworthiness (credit score, income, repayment history, etc.).
-     - Update loan status to `APPROVED` or `REJECTED`.
-     - If `REJECTED`, include a rejection reason.
-   - **Output:** Updated loan details in a DTO.
-
-4. **Check Loan Status**
-   - **Endpoint:** `GET /api/loans/{loanId}`
-   - **Input:** Loan ID
-   - **Output:** Loan details including current status (PENDING, APPROVED, REJECTED).
-
-5. **Update Credit Score**
-   - **Endpoint:** `PUT /api/customers/{customerId}/credit-score`
-   - **Input:** Customer ID
-   - **Workflow:**
-     - Calculate the new credit score based on payment history and other parameters.
-     - Update the customer record with the new score.
-   - **Output:** Confirmation of credit score update or an error message.
-
-6. **Loan Repayment**
-   - **Endpoint:** `POST /api/loans/repay`
-   - **Input:** Loan ID, payment amount.
-   - **Workflow:**
-     - Validate payment amount.
-     - Reduce outstanding balance for the loan.
-     - If balance becomes zero, mark loan as `PAID`.
-   - **Output:** Updated loan details including the remaining balance.
-
-7. **Retrieve Loan History (Customer)**
-   - **Endpoint:** `GET /api/customers/{customerId}/loans`
-   - **Input:** Customer ID
-   - **Output:** List of all loans associated with the customer along with their statuses.
-
-8. **Retrieve Defaulted Loans (Admin)**
-   - **Endpoint:** `GET /api/loans/defaulted`
-   - **Output:** List of loans with `DEFAULTED` status including customer information.
