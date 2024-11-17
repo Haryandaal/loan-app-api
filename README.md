@@ -125,7 +125,7 @@ Aplikasi ini menggunakan Security (Authentication) dengan mengimplementasi JWT (
    ```bash
    ./mvnw spring-boot:run
    ```
-5. Detail Daftar Endpoint dapat mengakses swagger melalui link berikut:
+5. Detail list endpoint dapat mengakses swagger melalui link berikut:
    ```bash
    dijalankan di local : http://localhost:8080/swagger-ui/index.html
    ```
