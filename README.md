@@ -2,7 +2,7 @@
 # Loan Management System
 
 ## 📖 **Deskripsi**
-Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelola proses pengajuan, evaluasi, persetujuan, dan penolakan pinjaman. Aplikasi ini mencakup fitur pengelolaan pelanggan, analisis risiko kredit, dan pembatasan pengajuan ulang.
+Sistem manajemen pinjaman ini dirancang untuk membantu mengelola proses pengajuan, evaluasi, persetujuan, dan penolakan pinjaman. Aplikasi ini mencakup fitur pengelolaan pelanggan, analisis risiko kredit, dan pembatasan pengajuan ulang.
 
 ---
 
@@ -19,12 +19,6 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
      - Penghasilan dan rasio cicilan terhadap pendapatan.
      - Riwayat pelunasan pinjaman.
      - Status pekerjaan pelanggan.
-
-5. **Audit dan Riwayat Evaluasi**  
-   - Setiap keputusan admin tercatat dalam riwayat evaluasi untuk keperluan audit.
-
-6. **Pembatasan Pengajuan Ulang**  
-   - Pelanggan yang ditolak hanya dapat mengajukan ulang setelah periode tertentu.
 
 ---
 
@@ -77,7 +71,7 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
   - Update status pinjaman (APPROVED/REJECTED).
   - Kirim notifikasi ke pelanggan.
   - Simpan riwayat evaluasi.  
-- **Endpoint**: `POST /api/v1/loans/evaluate`  
+- **Endpoint**: `POST /api/loans/loanId/evaluate`  
 - **Respons** (jika disetujui):
   ```json
   {
@@ -106,26 +100,6 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
 
 ---
 
-### 4. **Riwayat Evaluasi**
-- **Proses**:
-  - Keputusan admin dicatat untuk keperluan audit dan analisis.  
-- **Struktur Data**:
-  ```json
-  {
-    "evaluationId": 1,
-    "loanId": "loan_id",
-    "adminId": "admin_id",
-    "status": "APPROVED",
-    "evaluationDate": "2024-11-17T14:00:00",
-    "creditScore": 700,
-    "income": 5000000,
-    "monthlyInstallment": 50000
-  }
-  ```
-  
----
-
-
 ## 🌟 **Fitur Mendatang**
 - Laporan bulanan otomatis.
 - Integrasi dengan layanan skor kredit pihak ketiga.
@@ -144,7 +118,9 @@ Sistem manajemen pinjaman ini dirancang untuk membantu lembaga keuangan mengelol
    ```bash
    cd loan-management-system
    ```
-3. Jalankan aplikasi:  
+3. Sesuaikan database nya di application.properties
+   
+4. Jalankan aplikasi:  
    ```bash
    ./mvnw spring-boot:run
    ```
